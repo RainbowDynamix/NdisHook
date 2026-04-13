@@ -41,7 +41,6 @@ void recieve_hook(NDIS_HANDLE filter_module_context, PNET_BUFFER_LIST net_buffer
 
 void driver_unload(PDRIVER_OBJECT driver_object) {
 	if (g_ndis_protocol_handle) {
-		NdisDeregisterProtocolDriver(g_ndis_protocol_handle);
 		g_ndis_protocol_handle = nullptr;
 	}
 }
@@ -49,31 +48,31 @@ void driver_unload(PDRIVER_OBJECT driver_object) {
 NTSTATUS driver_entry(PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_path) {
 	driver_object->DriverUnload = driver_unload;
 
-	NDIS_PROTOCOL_DRIVER_CHARACTERISTICS protocolChar = {};
-	protocolChar.Header.Type			= NDIS_OBJECT_TYPE_PROTOCOL_DRIVER_CHARACTERISTICS;
-	protocolChar.Header.Revision		= NDIS_PROTOCOL_DRIVER_CHARACTERISTICS_REVISION_2;
-	protocolChar.Header.Size			= NDIS_SIZEOF_PROTOCOL_DRIVER_CHARACTERISTICS_REVISION_2;
+	NDIS_PROTOCOL_DRIVER_CHARACTERISTICS protocol_characteristics = {};
+	protocol_characteristics.Header.Type			= NDIS_OBJECT_TYPE_PROTOCOL_DRIVER_CHARACTERISTICS;
+	protocol_characteristics.Header.Revision		= NDIS_PROTOCOL_DRIVER_CHARACTERISTICS_REVISION_2;
+	protocol_characteristics.Header.Size			= NDIS_SIZEOF_PROTOCOL_DRIVER_CHARACTERISTICS_REVISION_2;
 	
-	protocolChar.MajorNdisVersion = 6;
-	protocolChar.MinorNdisVersion = 60;
+	protocol_characteristics.MajorNdisVersion = 6;
+	protocol_characteristics.MinorNdisVersion = 60;
 
-	protocolChar.MajorDriverVersion = 1;
-	protocolChar.MinorDriverVersion = 0;
+	protocol_characteristics.MajorDriverVersion = 1;
+	protocol_characteristics.MinorDriverVersion = 0;
 
-	RtlInitUnicodeString(&protocolChar.Name, L"SAHAPROT");
+	RtlInitUnicodeString(&protocol_characteristics.Name, L"SAHAPROT");
 
-	protocolChar.BindAdapterHandlerEx = ndis_interface::ProtoBindAdapterEx;
-	protocolChar.UnbindAdapterHandlerEx = ndis_interface::ProtoUnbindAdapterEx;
-	protocolChar.OpenAdapterCompleteHandlerEx = ndis_interface::ProtoOpenAdapterCompleteEx;
-	protocolChar.CloseAdapterCompleteHandlerEx = ndis_interface::ProtoCloseAdapterCompleteEx;
-	protocolChar.OidRequestCompleteHandler = ndis_interface::ProtoOidRequestComplete;
-	protocolChar.SendNetBufferListsCompleteHandler = ndis_interface::ProtoSendNetBufferListsComplete;
-	protocolChar.ReceiveNetBufferListsHandler = ndis_interface::ProtoReceiveNetBufferLists;
-	protocolChar.StatusHandlerEx = ndis_interface::ProtoStatusHandlerEx;
-	protocolChar.NetPnPEventHandler = ndis_interface::ProtoNetPnPEvent;
-	protocolChar.UninstallHandler = nullptr;
+	protocol_characteristics.BindAdapterHandlerEx = ndis_interface::ProtoBindAdapterEx;
+	protocol_characteristics.UnbindAdapterHandlerEx = ndis_interface::ProtoUnbindAdapterEx;
+	protocol_characteristics.OpenAdapterCompleteHandlerEx = ndis_interface::ProtoOpenAdapterCompleteEx;
+	protocol_characteristics.CloseAdapterCompleteHandlerEx = ndis_interface::ProtoCloseAdapterCompleteEx;
+	protocol_characteristics.OidRequestCompleteHandler = ndis_interface::ProtoOidRequestComplete;
+	protocol_characteristics.SendNetBufferListsCompleteHandler = ndis_interface::ProtoSendNetBufferListsComplete;
+	protocol_characteristics.ReceiveNetBufferListsHandler = ndis_interface::ProtoReceiveNetBufferLists;
+	protocol_characteristics.StatusHandlerEx = ndis_interface::ProtoStatusHandlerEx;
+	protocol_characteristics.NetPnPEventHandler = ndis_interface::ProtoNetPnPEvent;
+	protocol_characteristics.UninstallHandler = nullptr;
 
-	auto status = NdisRegisterProtocolDriver(nullptr, &protocolChar, &g_ndis_protocol_handle);
+	auto status = NdisRegisterProtocolDriver(nullptr, &protocol_characteristics, &g_ndis_protocol_handle);
 	if (!NT_SUCCESS(status))
 		return status;
 

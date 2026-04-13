@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.37111.16 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NdisHook", "NdisHook.vcxproj", "{D876DE33-260B-69BB-72A3-866A73335F97}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|ARM64 = Debug|ARM64
+		Debug|x64 = Debug|x64
+		Release|ARM64 = Release|ARM64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D876DE33-260B-69BB-72A3-866A73335F97}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{D876DE33-260B-69BB-72A3-866A73335F97}.Debug|ARM64.Build.0 = Debug|ARM64
+		{D876DE33-260B-69BB-72A3-866A73335F97}.Debug|ARM64.Deploy.0 = Debug|ARM64
+		{D876DE33-260B-69BB-72A3-866A73335F97}.Debug|x64.ActiveCfg = Debug|x64
+		{D876DE33-260B-69BB-72A3-866A73335F97}.Debug|x64.Build.0 = Debug|x64
+		{D876DE33-260B-69BB-72A3-866A73335F97}.Debug|x64.Deploy.0 = Debug|x64
+		{D876DE33-260B-69BB-72A3-866A73335F97}.Release|ARM64.ActiveCfg = Release|ARM64
+		{D876DE33-260B-69BB-72A3-866A73335F97}.Release|ARM64.Build.0 = Release|ARM64
+		{D876DE33-260B-69BB-72A3-866A73335F97}.Release|ARM64.Deploy.0 = Release|ARM64
+		{D876DE33-260B-69BB-72A3-866A73335F97}.Release|x64.ActiveCfg = Release|x64
+		{D876DE33-260B-69BB-72A3-866A73335F97}.Release|x64.Build.0 = Release|x64
+		{D876DE33-260B-69BB-72A3-866A73335F97}.Release|x64.Deploy.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {88416097-9439-4504-996D-7C50F23F030D}
+	EndGlobalSection
+EndGlobal

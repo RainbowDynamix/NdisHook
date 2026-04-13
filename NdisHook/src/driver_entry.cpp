@@ -49,9 +49,9 @@ NTSTATUS driver_entry(PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_pat
 	driver_object->DriverUnload = driver_unload;
 
 	NDIS_PROTOCOL_DRIVER_CHARACTERISTICS protocol_characteristics = {};
-	protocol_characteristics.Header.Type			= NDIS_OBJECT_TYPE_PROTOCOL_DRIVER_CHARACTERISTICS;
-	protocol_characteristics.Header.Revision		= NDIS_PROTOCOL_DRIVER_CHARACTERISTICS_REVISION_2;
-	protocol_characteristics.Header.Size			= NDIS_SIZEOF_PROTOCOL_DRIVER_CHARACTERISTICS_REVISION_2;
+	protocol_characteristics.Header.Type = NDIS_OBJECT_TYPE_PROTOCOL_DRIVER_CHARACTERISTICS;
+	protocol_characteristics.Header.Revision = NDIS_PROTOCOL_DRIVER_CHARACTERISTICS_REVISION_2;
+	protocol_characteristics.Header.Size = NDIS_SIZEOF_PROTOCOL_DRIVER_CHARACTERISTICS_REVISION_2;
 	
 	protocol_characteristics.MajorNdisVersion = 6;
 	protocol_characteristics.MinorNdisVersion = 60;

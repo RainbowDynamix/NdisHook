@@ -13,10 +13,12 @@
 extern NDIS_HANDLE g_ndis_protocol_handle;
 
 /*
-*     [+0x000] Type             : 0x3 [Type: unsigned char]
+* _NDIS_OBJECT_HEADER
+*   [+0x000] Type             : 0x3 [Type: unsigned char]
     [+0x001] Revision         : 0x1 [Type: unsigned char]
     [+0x002] Size             : 0x386 [Type: unsigned short]
 
+* _NDIS_PROTOCOL_BLOCK
     [+0x000] Header           [Type: _NDIS_OBJECT_HEADER]
     [+0x008] ProtocolDriverContext : 0x0 [Type: void *]
     [+0x010] NextProtocol     : 0xffffb1865e2e4af0 [Type: _NDIS_PROTOCOL_BLOCK *]

@@ -10,6 +10,35 @@
 
 NDIS_HANDLE g_ndis_protocol_handle = nullptr; // _NDIS_PROTOCOL_BLOCK structure
 
+using recieve_net_buffers_list_t = void(__cdecl*)(NDIS_HANDLE, PNET_BUFFER_LIST,
+	NDIS_PORT_NUMBER,
+	ULONG,
+	ULONG);
+
+using prot_send_net_buffer_list_complete_t = void(__cdecl*)(NDIS_HANDLE, PNET_BUFFER_LIST, 
+	ULONG);
+
+recieve_net_buffers_list_t original_recieve_net_buffers_list = nullptr;
+prot_send_net_buffer_list_complete_t original_prot_send_net_buffer_list_complete = nullptr;
+
+void send_hook(NDIS_HANDLE filter_module_context, PNET_BUFFER_LIST net_buffer_list,
+	ULONG send_complete_flags) {
+	DbgPrint("(+) send hook | %p", filter_module_context);
+	original_prot_send_net_buffer_list_complete(filter_module_context, net_buffer_list, 
+		send_complete_flags);
+}
+
+void recieve_hook(NDIS_HANDLE filter_module_context, PNET_BUFFER_LIST net_buffer_list,
+	NDIS_PORT_NUMBER port_number,
+	ULONG net_buffer_list_count,
+	ULONG recieve_flags) {
+	DbgPrint("(+) recieve hook | port : %d", port_number);
+	original_recieve_net_buffers_list(filter_module_context, net_buffer_list, 
+		port_number, 
+		net_buffer_list_count, 
+		recieve_flags);
+}
+
 void driver_unload(PDRIVER_OBJECT driver_object) {
 	if (g_ndis_protocol_handle) {
 		NdisDeregisterProtocolDriver(g_ndis_protocol_handle);
@@ -49,5 +78,20 @@ NTSTATUS driver_entry(PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_pat
 		return status;
 
 	DbgPrint("(+) g_ndis_protocol_handle : %p", g_ndis_protocol_handle);
+
+	auto* current_ndis_block = (PNDIS_PROTOCOL_BLOCK)g_ndis_protocol_handle;
+	do {
+		if (!wcscmp(current_ndis_block->name.Buffer, L"TCPIP")) {
+			original_prot_send_net_buffer_list_complete = current_ndis_block->open_queue->prot_send_net_buffer_list_complete;
+		    original_recieve_net_buffers_list = current_ndis_block->open_queue->recieve_net_buffer_lists;
+
+			current_ndis_block->open_queue->prot_send_net_buffer_list_complete = send_hook;
+			current_ndis_block->open_queue->recieve_net_buffer_lists = recieve_hook;
+
+			DbgPrint("(+) hooks placed");
+		}
+		current_ndis_block = current_ndis_block->next_protocol;
+	} while (current_ndis_block);
+
 	return STATUS_SUCCESS;
 }

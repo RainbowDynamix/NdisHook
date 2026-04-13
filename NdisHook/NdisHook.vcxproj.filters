@@ -19,15 +19,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="entry.cpp">
+    <ClCompile Include="src\driver_entry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ndis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ndis.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="system.hpp">
+    <ClInclude Include="include\ndis.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

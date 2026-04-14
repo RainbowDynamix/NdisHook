@@ -32,7 +32,9 @@ void recieve_hook(NDIS_HANDLE filter_module_context, PNET_BUFFER_LIST net_buffer
 	NDIS_PORT_NUMBER port_number,
 	ULONG net_buffer_list_count,
 	ULONG recieve_flags) {
-	DbgPrint("(+) recieve hook | port : %d", port_number);
+	DbgPrint("(+) recieve hook | *FilterModuleContext: %p, *NetBufferLists: %p, PortNumber: %d, NumberOfNetBufferLists: %d, ReceiveFlags: %d\n", 
+		filter_module_context, net_buffer_list, port_number, net_buffer_list_count, recieve_flags);
+
 	original_recieve_net_buffers_list(filter_module_context, net_buffer_list, 
 		port_number, 
 		net_buffer_list_count, 
@@ -40,6 +42,21 @@ void recieve_hook(NDIS_HANDLE filter_module_context, PNET_BUFFER_LIST net_buffer
 }
 
 void driver_unload(PDRIVER_OBJECT driver_object) {
+	if (original_prot_send_net_buffer_list_complete || original_recieve_net_buffers_list) {
+		auto* current_ndis_block = (PNDIS_PROTOCOL_BLOCK)g_ndis_protocol_handle;
+		while (current_ndis_block) {
+			if (!wcscmp(current_ndis_block->name.Buffer, L"TCPIP")) {
+				if (original_prot_send_net_buffer_list_complete)
+					current_ndis_block->open_queue->prot_send_net_buffer_list_complete = original_prot_send_net_buffer_list_complete;
+				if (original_recieve_net_buffers_list)
+					current_ndis_block->open_queue->recieve_net_buffer_lists = original_recieve_net_buffers_list;
+				DbgPrint("(+) hooks removed\n");
+				break;
+			}
+			current_ndis_block = current_ndis_block->next_protocol;
+		}
+	}
+
 	if (g_ndis_protocol_handle) {
 		NdisDeregisterProtocolDriver(g_ndis_protocol_handle);
 		g_ndis_protocol_handle = nullptr;
@@ -77,7 +94,7 @@ NTSTATUS driver_entry(PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_pat
 	if (!NT_SUCCESS(status))
 		return status;
 
-	DbgPrint("(+) g_ndis_protocol_handle : %p", g_ndis_protocol_handle);
+	DbgPrint("(+) g_ndis_protocol_handle : %p\n", g_ndis_protocol_handle);
 
 	auto* current_ndis_block = (PNDIS_PROTOCOL_BLOCK)g_ndis_protocol_handle;
 	do {
@@ -85,10 +102,10 @@ NTSTATUS driver_entry(PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_pat
 			original_prot_send_net_buffer_list_complete = current_ndis_block->open_queue->prot_send_net_buffer_list_complete;
 		    original_recieve_net_buffers_list = current_ndis_block->open_queue->recieve_net_buffer_lists;
 
-			current_ndis_block->open_queue->prot_send_net_buffer_list_complete = send_hook;
+			//current_ndis_block->open_queue->prot_send_net_buffer_list_complete = send_hook;
 			current_ndis_block->open_queue->recieve_net_buffer_lists = recieve_hook;
 
-			DbgPrint("(+) hooks placed");
+			DbgPrint("(+) hooks placed\n");
 		}
 		current_ndis_block = current_ndis_block->next_protocol;
 	} while (current_ndis_block);

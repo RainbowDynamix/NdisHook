@@ -122,11 +122,7 @@ NTSTATUS driver_entry(PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_pat
 	protocol_characteristics.MajorDriverVersion = 1;
 	protocol_characteristics.MinorDriverVersion = 0;
 
-<<<<<<< HEAD
-	RtlInitUnicodeString(&protocol_characteristics.Name, L"SAHAPROT");
-=======
 	RtlInitUnicodeString(&protocolChar.Name, L"FAKEPROTOCOL");
->>>>>>> origin/dev
 
 	protocol_characteristics.BindAdapterHandlerEx = ndis_interface::ProtoBindAdapterEx;
 	protocol_characteristics.UnbindAdapterHandlerEx = ndis_interface::ProtoUnbindAdapterEx;

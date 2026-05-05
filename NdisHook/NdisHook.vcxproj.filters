@@ -30,5 +30,14 @@
     <ClInclude Include="include\ndis.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\packet.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rootkit.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\utils.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

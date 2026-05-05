@@ -35,6 +35,7 @@ controller > kill 1234
 ```
 
 ## Resources
+- [SECURITY.COM - Daxin Backdoor: In-Depth Analysis, Part One](https://www.security.com/threat-intelligence/daxin-malware-espionage-analysis)
 - [BlackHat 2006 - Rootkits: Attacking Personal Firewalls](https://blackhat.com/presentations/bh-usa-06/BH-US-06-Tereshkin.pdf)
 - [United States Patent: DETECTING DEVIATION FROM A DATA PACKET SEND-PROTOCOL IN A COMPUTER SYSTEM](https://patentimages.storage.googleapis.com/45/8e/31/4c1122aacfcac7/US9654498.pdf)
     - NOTE: No technique described in this patent was used directly.  

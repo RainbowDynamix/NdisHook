@@ -1,5 +1,7 @@
 ﻿#include <ndis.hpp>
 
+// Claude Opus 4.7 was used to fill in parts of these empty function prototypes
+
 namespace ndis_interface {
     NDIS_STATUS ProtoBindAdapterEx(NDIS_HANDLE ProtocolDriverContext, NDIS_HANDLE BindContext,
         PNDIS_BIND_PARAMETERS BindParameters) {

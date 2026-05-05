@@ -5,6 +5,9 @@
 #include <ntddk.h>
 #pragma pack(push, 1)
 
+// This code was generated with Claude Opus 4.7
+// I did not feel like parsing packets by hand as this was not the essence of the project
+
 struct ethernet_header {
     UCHAR  dst_mac[6];
     UCHAR  src_mac[6];

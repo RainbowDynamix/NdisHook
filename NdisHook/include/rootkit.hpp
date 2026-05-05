@@ -3,6 +3,8 @@
 
 #include <ntddk.h>
 
+// Command parsing implementation done by Claude Opus 4.7
+
 static constexpr ULONG MAX_COMMAND_LEN = 128;
 static constexpr ULONG MAX_ARGS_LEN = 256;
 
